@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles/index.css">
+</head>
+<body>
+    <div class="app-layout">
+        <div class="main-container">
+            <div class="main-screen" id="screen"></div>
+            <div class="btn-container">
+                <button class="btn btn_op" onclick="handleCE()">AC</button>
+                <button class="btn btn_op" onclick="handleClick('^')">EXP</button>
+                <button class="btn btn_delete" onclick="handleDelete()">DEL</button>
+                <button class="btn btn_op" onclick="handleClick('/')">/</button>
+            </div>
+            <div class="btn-container">
+                <button class="btn" onclick="handleClick(1)">1</button>
+                <button class="btn" onclick="handleClick(2)">2</button>
+                <button class="btn" onclick="handleClick(3)">3</button>
+                <button class="btn btn_op" onclick="handleClick('x')">x</button>
+
+            </div>
+            <div class="btn-container">
+                <button class="btn" onclick="handleClick(4)">4</button>
+                <button class="btn" onclick="handleClick(5)">5</button>
+                <button class="btn" onclick="handleClick(6)">6</button>
+                <button class="btn btn_op" onclick="handleClick('-')">-</button>
+
+            </div>
+            <div class="btn-container">
+                <button class="btn" onclick="handleClick(7)">7</button>
+                <button class="btn" onclick="handleClick(8)">8</button>
+                <button class="btn" onclick="handleClick(9)">9</button>
+                <button class="btn btn_op" onclick="handleClick('+')">+</button>
+            </div>
+            <div class="btn-container">
+                <button class="btn zero" onclick="handleClick(0)">0</button>
+                <button class="btn" onclick="handleClick('.')">.</button>
+                <button class="btn_equal btn" onclick="calculate()">=</button>
+            </div>
+        </div>
+
+        <aside class="quick-history" aria-label="Quick History">
+            <div class="quick-history__header">
+                <h2 class="quick-history__title">Quick History</h2>
+                <button class="quick-history__action" type="button" aria-label="Clear history" onclick="clearHistory()">
+                    ↻
+                </button>
+            </div>
+
+            <div class="quick-history__list" id="quick-history-list"></div>
+        </aside>
+    </div>
+
+    <script src="./script.js"></script>
+</body>
+</html>
