@@ -128,7 +128,7 @@ function handleDelete() {
     }
 
     fullOp = String(fullOp).slice(0, -1);
-    operationInString = /(\+|-|\^|x|\/)/.test(fullOp);
+    operationInString = /(?<=.)(\+|-|\^|x|\/)/.test(fullOp);
     showNumber(fullOp);
 }
 
