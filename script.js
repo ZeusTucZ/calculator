@@ -9,6 +9,60 @@ let operationInString = false;
 let pLeft = 1;
 let pRight = 1;
 
+function isOperator(value) {
+    return value === "+" || value === "-" || value === "x" || value === "/" || value === "^";
+}
+
+function getMainOperatorIndex(expression) {
+    for (let i = 1; i < expression.length; i++) {
+        if (isOperator(expression[i])) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+function getExpressionParts(expression) {
+    const operatorIndex = getMainOperatorIndex(expression);
+
+    if (operatorIndex === -1) {
+        return {
+            left: expression,
+            operator: "",
+            right: ""
+        };
+    }
+
+    return {
+        left: expression.slice(0, operatorIndex),
+        operator: expression[operatorIndex],
+        right: expression.slice(operatorIndex + 1)
+    };
+}
+
+function syncInputState() {
+    const { left, operator, right } = getExpressionParts(fullOp);
+    const sanitizedLeft = left.startsWith("-") ? left.slice(1) : left;
+    const sanitizedRight = right.startsWith("-") ? right.slice(1) : right;
+
+    operationInString = operator !== "";
+    pLeft = sanitizedLeft.includes(".") ? 0 : 1;
+    pRight = sanitizedRight.includes(".") ? 0 : 1;
+}
+
+function formatResult(value) {
+    if (!Number.isFinite(value)) {
+        return String(value);
+    }
+
+    if (Number.isInteger(value)) {
+        return String(value);
+    }
+
+    return Number(value.toFixed(10)).toString();
+}
+
 function renderHistory() {
     const historyList = document.getElementById("quick-history-list");
 
@@ -31,17 +85,32 @@ function clearHistory() {
 }
 
 function handleClick(number) {
+    const isInputOperator = isOperator(number);
+    const { operator, right } = getExpressionParts(fullOp);
+    const lastChar = fullOp[fullOp.length - 1];
 
-    if (operationInString && (number === "+" || number === "-" || number === "x" || number === "/" || number === "^")) {
-        return;
-    }
+    if (isInputOperator) {
+        if (fullOp === "") {
+            if (number === "-") {
+                fullOp = number;
+                showNumber(fullOp);
+            }
+            return;
+        }
 
-    if ((number === "+" || number === "-" || number === "x" || number === "/" || number === "^") && fullOp != "") {
-        operationInString = true;
+        if (!operationInString) {
+            operationInString = true;
+        } else {
+            const canUseNegativeSign = number === "-" && right === "" && isOperator(lastChar);
+
+            if (!canUseNegativeSign) {
+                return;
+            }
+        }
     }
 
     if (number === '.' && !operationInString) {
-        if (pLeft === 1) {
+        if (!fullOp.includes('.') && pLeft === 1) {
             pLeft = pLeft - 1;
         } else {
             return;
@@ -50,7 +119,9 @@ function handleClick(number) {
 
     
     if (number === '.' && operationInString) {
-        if (pRight === 1) {
+        const sanitizedRight = right.startsWith("-") ? right.slice(1) : right;
+
+        if (!sanitizedRight.includes('.') && pRight === 1) {
             pRight = pRight - 1;
         } else {
             return;
@@ -63,7 +134,13 @@ function handleClick(number) {
 }
 
 function calculate() {
-    const [a, op, b] = fullOp.split(/(?<=.)(\+|-|\^|x|\/)/);
+    const match = fullOp.match(/^(-?\d*\.?\d+)(\+|-|\^|x|\/)(-?\d*\.?\d+)$/);
+
+    if (!match) {
+        return;
+    }
+
+    const [, a, op, b] = match;
 
     if (!a || !op || !b) {
         return;
@@ -89,15 +166,13 @@ function calculate() {
             break
     }
 
-    const formattedResult = Number(res).toFixed(2);
+    const formattedResult = formatResult(res);
     history.unshift(`${a} ${op} ${b} = ${formattedResult}`);
     history = history.slice(0, 8);
     renderHistory();
 
-    operationInString = false;
-    pLeft = 0;
-    pRight = 1;
     fullOp = formattedResult;
+    syncInputState();
     showNumber(formattedResult);
 }
 
@@ -107,11 +182,9 @@ function showNumber(number) {
 
 function handleCE() {
     document.getElementById("screen").innerHTML = "";
-    operationInString = false;
-    pLeft = 1;
-    pRight = 1;
     fullOp = "";
     res = 0;
+    syncInputState();
 }
 
 function handleDelete() {
@@ -119,17 +192,10 @@ function handleDelete() {
         return;
     }
 
-    if (fullOp[fullOp.length - 1] === '.') {
-        if (!operationInString) {
-            pLeft = 1;
-        } else {
-            pRight = 1;
-        }
-    }
-
     fullOp = String(fullOp).slice(0, -1);
-    operationInString = /(?<=.)(\+|-|\^|x|\/)/.test(fullOp);
+    syncInputState();
     showNumber(fullOp);
 }
 
+syncInputState();
 renderHistory();
